@@ -30,9 +30,14 @@ class Module:
         return list(m.values())
 
     def train(self) -> None:
+        def update(cur):
+            cur.training = True
+            for child in cur.__dict__["_modules"].values():
+                update(child)
+        update(self)
         """Set the mode of this module and all descendent modules to `train`."""
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        #raise NotImplementedError("Need to implement for Task 0.4")
 
     def eval(self) -> None:
         """Set the mode of this module and all descendent modules to `eval`."""
@@ -47,8 +52,17 @@ class Module:
             The name and `Parameter` of each ancestor parameter.
 
         """
+        res = {}
+        def helper(name,node):
+            prefix = name + "." if name else ""
+            for k,v in node._parameter.items():
+                res[prefix + k] = v
+            for k,v in node._modules.items():
+                helper(prefix + k, v)
+            helper("",self)
+            return res
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        #raise NotImplementedError("Need to implement for Task 0.4")
 
     def parameters(self) -> Sequence[Parameter]:
         """Enumerate over all the parameters of this module and its descendents."""
