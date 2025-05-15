@@ -16,8 +16,11 @@ class Module:
     """
 
     _modules: Dict[str, Module]
+    """子模块"""
     _parameters: Dict[str, Parameter]
+    """参数"""
     training: bool
+    """训练模式/计算模式"""
 
     def __init__(self) -> None:
         self._modules = {}
@@ -33,6 +36,7 @@ class Module:
         self.mode = "train"
         self.training = True
 
+        modules_lst = self.modules()
         for module in self._modules.values():
             module.train()
         """Set the mode of this module and all descendent modules to `train`."""
@@ -44,6 +48,7 @@ class Module:
         self.mode = "eval"
         self.training = False
 
+        modules_lst = self.modules()
         for module in self._modules.values():
             module.eval()
         # TODO: Implement for Task 0.4.
@@ -57,15 +62,19 @@ class Module:
             The name and `Parameter` of each ancestor parameter.
 
         """
-        res = {}
-        def helper(name,node):
-            prefix = name + "." if name else ""
-            for k,v in node._parameter.items():
-                res[prefix + k] = v
-            for k,v in node._modules.items():
-                helper(prefix + k, v)
-        helper("",self)
-        return res
+        def find_parameters(self: Module, name: str) -> list[Tuple[str, Parameter]]:
+            parameters_lst: list[Tuple[str, Parameter]] = []
+            p: Dict[str, Parameter] = self.__dict__["_parameters"]
+            for (k, v) in p.items():
+                parameters_lst += [(k if name is "" else name + "." + k, v)]
+
+            m: Dict[str, Module] = self.__dict__["_modules"]
+            for (k, v) in m.items():
+                parameters_lst += find_parameters(v, k if name is "" else name + "." + k)
+
+            return parameters_lst
+
+        return find_parameters(self, "")
         # TODO: Implement for Task 0.4.
         #raise NotImplementedError("Need to implement for Task 0.4")
 
