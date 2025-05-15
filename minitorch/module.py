@@ -30,19 +30,24 @@ class Module:
         return list(m.values())
 
     def train(self) -> None:
-        def update(cur):
-            cur.training = True
-            for child in cur.__dict__["_modules"].values():
-                update(child)
-        update(self)
+        self.mode = "train"
+        self.training = True
+
+        for module in self._modules.values():
+            module.train()
         """Set the mode of this module and all descendent modules to `train`."""
         # TODO: Implement for Task 0.4.
         #raise NotImplementedError("Need to implement for Task 0.4")
 
     def eval(self) -> None:
         """Set the mode of this module and all descendent modules to `eval`."""
+        self.mode = "eval"
+        self.training = False
+
+        for module in self._modules.values():
+            module.eval()
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        #raise NotImplementedError("Need to implement for Task 0.4")
 
     def named_parameters(self) -> Sequence[Tuple[str, Parameter]]:
         """Collect all the parameters of this module and its descendents.
@@ -59,15 +64,16 @@ class Module:
                 res[prefix + k] = v
             for k,v in node._modules.items():
                 helper(prefix + k, v)
-            helper("",self)
-            return res
+        helper("",self)
+        return res
         # TODO: Implement for Task 0.4.
         #raise NotImplementedError("Need to implement for Task 0.4")
 
     def parameters(self) -> Sequence[Parameter]:
         """Enumerate over all the parameters of this module and its descendents."""
+        return list(dict(self.named_parameters()).values())
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        #raise NotImplementedError("Need to implement for Task 0.4")
 
     def add_parameter(self, k: str, v: Any) -> Parameter:
         """Manually add a parameter. Useful helper for scalar parameters.
